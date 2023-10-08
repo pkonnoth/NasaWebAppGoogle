@@ -51,18 +51,15 @@ function initMap() {
                 // Check if there are any results
                 if (results[0]) {
                     // Extract the country name from the results
-                    const addressComponents = results[0].address_components;
-                    let countryName = '';
+                    window.countryName = '';
 
-                    for (const component of addressComponents) {
-                        if (component.types.includes('country')) {
-                            countryName = component.long_name;
-                            break; // Stop searching once the country name is found
+                    fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${coordinates.lat()}, ${coordinates.lng()}&sensor=false&key=AIzaSyBrQ_mXhabKMKgPXFlnquwXjUflwSLRy2M`).then(response => response.json().then(
+                        data => {
+                            window.countryName = data.results[data.results.length - 1].formatted_address;
                         }
-                    }
-
-                    // Log the country name to the console
-                    console.log('Country Name:', countryName);
+                    )).then(() => {
+                        console.log("Country name: " + window.countryName);
+                    });
                 } else {
                     console.log('No results found');
                 }
