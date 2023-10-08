@@ -8,6 +8,8 @@ function loadGoogleMapsAPI() {
     document.head.appendChild(script);
 }
 
+var latlong=0
+
 // Initialize the map
 function initMap() {
     const minZoomLevel = 2; // Set the minimum zoom level to show the whole world
@@ -59,6 +61,7 @@ function initMap() {
                         }
                     )).then(() => {
                         console.log("Country name: " + window.countryName);
+                        sideBarCountry(window.countryName)
                     });
                 } else {
                     console.log('No results found');
@@ -71,21 +74,25 @@ function initMap() {
 
     
     
-    var latlon;
+    
     fetch('./data.json')
     .then(response => response.json()) // this will parse the JSON data as an object
     .then(data => {
         const latlon = data
+        latlong=latlon
         console.log()
         const max=Object.keys(latlon.latitude).length
         console.log(max)
         const image="https://raw.githubusercontent.com/DuckyProgramming/SpaceApps2023/main/frontend/public/untitled%20(1).png";
-        for(var a=0;a<max;a++){
-            var marker = new google.maps.Marker({
+        for(let a=0;a<max;a++){
+            marker=new google.maps.Marker({
                 position: {lat:latlon.latitude[a],lng:latlon.longitude[a]},
                 icon:image,
                 title:"Fire",
             });
+            marker.addListener("click",()=>{
+                sideBarFire(a);
+            })
 
             marker.setMap(map);
         }
@@ -122,3 +129,41 @@ fetch(areaUrl)
     .catch(error => {
         console.error("Fetch error:", error);
     });
+
+sideBar=0
+sideBarCountryName=""
+sideBarFireID=0
+function setup(){
+    createCanvas(windowWidth,windowHeight*0.2)
+    sideBar=0
+}
+function sideBarCountry(country){
+    sideBar=1
+    sideBarCountryName=country
+}
+function sideBarFire(fire){
+    sideBar=2
+    sideBarFireID=fire
+}
+function draw(){
+    background(200)
+    fill(0)
+    textAlign(CENTER,CENTER)
+    textSize(20)
+    noStroke()
+    switch(sideBar){
+        case 0:
+            text('No Object of Interest Selected',width/2,height*0.2)
+        break
+        case 1:
+            text(`Country Selected: ${sideBarCountryName}`,width/2,height*0.2)
+        break
+        case 2:
+            text(`Fire Selected: ${sideBarFireID}`,width/2,height*0.2)
+            textSize(10)
+            text(`Latitude: ${latlong.latitude[sideBarFireID]}`,width/2,height*0.2+30)
+            text(`Longitude: ${latlong.longitude[sideBarFireID]}`,width/2,height*0.2+45)
+            text(`Date: ${latlong.acq_date[sideBarFireID]}`,width/2,height*0.2+60)
+        break
+    }
+}

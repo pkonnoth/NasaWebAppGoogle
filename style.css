@@ -1,0 +1,4 @@
+.duck{
+    display: flex;
+    flex-direction: row;
+}
