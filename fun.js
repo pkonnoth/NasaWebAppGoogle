@@ -1,3 +1,4 @@
+
 // Define a function to load the Google Maps API
 function loadGoogleMapsAPI() {
     const script = document.createElement('script');
@@ -70,7 +71,57 @@ function initMap() {
             }
         });
     });
+
+    
+    
+    var latlon;
+    fetch('./data.json')
+    .then(response => response.json()) // this will parse the JSON data as an object
+    .then(data => {
+        const latlon = data
+        console.log()
+        const max=Object.keys(latlon.latitude).length
+        console.log(max)
+        const image="https://raw.githubusercontent.com/DuckyProgramming/SpaceApps2023/main/frontend/public/untitled%20(1).png";
+        for(var a=0;a<max;a++){
+            var marker = new google.maps.Marker({
+                position: {lat:latlon.latitude[a],lng:latlon.longitude[a]},
+                icon:image,
+                title:"Fire",
+            });
+
+            marker.setMap(map);
+        }
+    }); // this will print the JSON data as an object
+
 }
 
 // Load the Google Maps API when the page loads
 loadGoogleMapsAPI();
+// Define your MAP_KEY (replace with your actual map_key)
+const MAP_KEY = '0a99be10cfebba71b9e96715339da3c1'; // Replace with your map_key
+
+// Define the parameters for the API endpoint
+const SOURCE = 'VIIRS_NOAA20_NRT'; // Sensor/source name
+const AREA_COORDINATES = 'world'; // Area coordinates (in this example, querying the entire world)
+const DAY_RANGE = '1'; // Number of days to look back (1 for the most recent day)
+
+// Define the URL for querying fire detection hotspots
+const areaUrl = `https://firms.modaps.eosdis.nasa.gov/api/area/csv/${MAP_KEY}/${SOURCE}/${AREA_COORDINATES}/${DAY_RANGE}`;
+
+// Make a GET request to the area API
+fetch(areaUrl)
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.text();
+    })
+    .then(data => {
+        // Process the CSV data here
+        // You can parse the CSV data into an array or perform other operations as needed
+        // console.log(data);
+    })
+    .catch(error => {
+        console.error("Fetch error:", error);
+    });
