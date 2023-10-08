@@ -1,3 +1,12 @@
+// Define a function to load the Google Maps API
+function loadGoogleMapsAPI() {
+    const script = document.createElement('script');
+    script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyBrQ_mXhabKMKgPXFlnquwXjUflwSLRy2M&callback=initMap';
+    script.defer = true;
+    script.async = true;
+    document.head.appendChild(script);
+}
+
 // Initialize the map
 function initMap() {
     const minZoomLevel = 2; // Set the minimum zoom level to show the whole world
@@ -15,7 +24,7 @@ function initMap() {
         // Set the minimum and maximum zoom levels
         minZoom: minZoomLevel,
         maxZoom: maxZoomLevel,
-        mapTypeId: 'satellite', // Use the satellite map type
+        mapTypeId: 'terrain', // Use the terrain map type
 
         // Set the restriction to world bounds
         restriction: {
@@ -26,34 +35,42 @@ function initMap() {
 
     // Disable map type control (prevents switching between map and satellite)
     map.setOptions({ mapTypeControl: false });
+
+    // Initialize the Geocoder service
+    const geocoder = new google.maps.Geocoder();
+
+    // Add a click event listener to the map
+    map.addListener('click', event => {
+        // Get the coordinates where the user clicked
+        const coordinates = event.latLng;
+
+        // Use the Geocoder to get the country name
+        geocoder.geocode({ location: coordinates }, (results, status) => {
+            if (status === 'OK') {
+                // Check if there are any results
+                if (results[0]) {
+                    // Extract the country name from the results
+                    const addressComponents = results[0].address_components;
+                    let countryName = '';
+
+                    for (const component of addressComponents) {
+                        if (component.types.includes('country')) {
+                            countryName = component.long_name;
+                            break; // Stop searching once the country name is found
+                        }
+                    }
+
+                    // Log the country name to the console
+                    console.log('Country Name:', countryName);
+                } else {
+                    console.log('No results found');
+                }
+            } else {
+                console.error('Geocoder failed due to:', status);
+            }
+        });
+    });
 }
 
 // Load the Google Maps API when the page loads
 loadGoogleMapsAPI();
-// Define your MAP_KEY (replace with your actual map_key)
-const MAP_KEY = '0a99be10cfebba71b9e96715339da3c1'; // Replace with your map_key
-
-// Define the parameters for the API endpoint
-const SOURCE = 'VIIRS_NOAA20_NRT'; // Sensor/source name
-const AREA_COORDINATES = 'world'; // Area coordinates (in this example, querying the entire world)
-const DAY_RANGE = '1'; // Number of days to look back (1 for the most recent day)
-
-// Define the URL for querying fire detection hotspots
-const areaUrl = `https://firms.modaps.eosdis.nasa.gov/api/area/csv/${MAP_KEY}/${SOURCE}/${AREA_COORDINATES}/${DAY_RANGE}`;
-
-// Make a GET request to the area API
-fetch(areaUrl)
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.text();
-    })
-    .then(data => {
-        // Process the CSV data here
-        // You can parse the CSV data into an array or perform other operations as needed
-        console.log(data);
-    })
-    .catch(error => {
-        console.error("Fetch error:", error);
-    });
