@@ -9,6 +9,7 @@ function loadGoogleMapsAPI() {
 }
 
 var latlong=0
+var totalfires=0
 
 // Initialize the map
 function initMap() {
@@ -84,6 +85,7 @@ function initMap() {
         const max=Object.keys(latlon.latitude).length
         console.log(max)
         const image="https://raw.githubusercontent.com/DuckyProgramming/SpaceApps2023/main/frontend/public/untitled%20(1).png";
+        totalfires=max
         for(let a=0;a<max;a++){
             marker=new google.maps.Marker({
                 position: {lat:latlon.latitude[a],lng:latlon.longitude[a]},
@@ -104,6 +106,8 @@ function initMap() {
 loadGoogleMapsAPI();
 // Define your MAP_KEY (replace with your actual map_key)
 const MAP_KEY = '0a99be10cfebba71b9e96715339da3c1'; // Replace with your map_key
+const MAP_KEY2 = 'e7787d6a1d3231bf9f9bdb973e6ad415';
+const MAP_KEY3 = '53ab68957f429ffde75b4317091e90f2';
 
 // Define the parameters for the API endpoint
 const SOURCE = 'VIIRS_NOAA20_NRT'; // Sensor/source name
@@ -144,6 +148,7 @@ fetch(areaUrl)
 sideBar=0
 sideBarCountryName=""
 sideBarFireID=0
+sideBarCountryWhatev=[0,0,0]
 function setup(){
     createCanvas(windowWidth,windowHeight*0.2)
     sideBar=0
@@ -155,7 +160,16 @@ function sideBarCountry(country){
     url = "https://firms.modaps.eosdis.nasa.gov/api/country/csv/0a99be10cfebba71b9e96715339da3c1/MODIS_NRT/" + code + "/2";
     fetch(url).then(response => response.text().then(
         data => {
-            console.log(data)
+            count=0
+            splitted=data.split(",").join("\n").split("\n")
+            for(let a=0,la=splitted.length;a<la;a++){
+                if(splitted[a]==code||splitted[a]==code||splitted[a]==code){
+                    count++
+                }
+            }
+            
+            risk=round(count/totalfires*1000)
+            sideBarCountryWhatev=[count,count/totalfires,risk<1?0:risk<5?1:2]
         }
     ));
 }
@@ -175,13 +189,17 @@ function draw(){
         break
         case 1:
             text(`Country Selected: ${sideBarCountryName}`,width/2,height*0.2)
+            textSize(15)
+            text(`Number of Fires: ${sideBarCountryWhatev[0]}`,width/2,height*0.2+40)
+            text(`Chance of Fire: ${round(sideBarCountryWhatev[1]*1000*1000)/1000}%`,width/2,height*0.2+70)
+            text(`Risk of Fire: ${['Low','Medium','High'][sideBarCountryWhatev[2]]}`,width/2,height*0.2+100)
         break
         case 2:
             text(`Fire Selected: ${sideBarFireID}`,width/2,height*0.2)
-            textSize(10)
-            text(`Latitude: ${latlong.latitude[sideBarFireID]}`,width/2,height*0.2+30)
-            text(`Longitude: ${latlong.longitude[sideBarFireID]}`,width/2,height*0.2+45)
-            text(`Date: ${latlong.acq_date[sideBarFireID]}`,width/2,height*0.2+60)
+            textSize(15)
+            text(`Latitude: ${latlong.latitude[sideBarFireID]}`,width/2,height*0.2+40)
+            text(`Longitude: ${latlong.longitude[sideBarFireID]}`,width/2,height*0.2+70)
+            text(`Date: ${latlong.acq_date[sideBarFireID]}`,width/2,height*0.2+100)
         break
     }
 }
