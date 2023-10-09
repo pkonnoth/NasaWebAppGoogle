@@ -112,7 +112,18 @@ const DAY_RANGE = '1'; // Number of days to look back (1 for the most recent day
 
 // Define the URL for querying fire detection hotspots
 const areaUrl = `https://firms.modaps.eosdis.nasa.gov/api/area/csv/${MAP_KEY}/${SOURCE}/${AREA_COORDINATES}/${DAY_RANGE}`;
+window.countryToCode = {};
+fetch("./country_to_code.json").then(
+    response => response.json().then(
+        data => {
+            asOb = Object.keys(data);
+            console.log(asOb);
+            for (let i = 0; i <asOb.length; i++) {
 
+                window.countryToCode[asOb[i]] = data[asOb[i]];
+            }
+        }
+));
 // Make a GET request to the area API
 fetch(areaUrl)
     .then(response => {
@@ -140,6 +151,13 @@ function setup(){
 function sideBarCountry(country){
     sideBar=1
     sideBarCountryName=country
+    code = window.countryToCode[country];
+    url = "https://firms.modaps.eosdis.nasa.gov/api/country/csv/0a99be10cfebba71b9e96715339da3c1/MODIS_NRT/" + code + "/2";
+    fetch(url).then(response => response.text().then(
+        data => {
+            console.log(data)
+        }
+    ));
 }
 function sideBarFire(fire){
     sideBar=2

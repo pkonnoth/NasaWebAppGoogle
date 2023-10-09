@@ -1,4 +1,6 @@
 from arduino_iot_cloud import ArduinoCloudClient
+import pandas as pd
+import json
 
 
 def main():
@@ -7,11 +9,13 @@ def main():
     #     json.dump(call.to_dict(), f, indent=4)
     #     f.close()
     # configure and instance the API client
-    device_id = b"um9tCl5LIMzN1dMLZWv9Ry4JYy6QOZ2q"
-    device_secret = b"r3aml5RArpjfLjxTQRRJ6f9lIBLYuDZ5b5gcS5OIDoSinxCBb22DoRlmZ0rHqTQD"
-    client = ArduinoCloudClient(device_id=device_id, username=device_id, password=device_secret)
-    client.start()
 
+    # device_id = b"um9tCl5LIMzN1dMLZWv9Ry4JYy6QOZ2q"
+    # device_secret = b"r3aml5RArpjfLjxTQRRJ6f9lIBLYuDZ5b5gcS5OIDoSinxCBb22DoRlmZ0rHqTQD"
+    # client = ArduinoCloudClient(device_id=device_id, username=device_id, password=device_secret)
+    # client.start()
+    call = pd.read_csv("https://firms.modaps.eosdis.nasa.gov/api/country/csv/0a99be10cfebba71b9e96715339da3c1/MODIS_NRT/USA/1")
+    print(call)
 
 if __name__ == "__main__":
     main()
